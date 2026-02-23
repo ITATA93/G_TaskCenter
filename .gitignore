@@ -74,3 +74,4 @@ scripts/setup/_unpack_temp/
 _resources/
 _global-profile/
 _template/workspace/_global-profile/
+.github/workflows/
