@@ -1,0 +1,8 @@
+[command]
+name = "help"
+description = "Muestra la guía de usuario y ayuda del sistema Antigravity"
+content = """
+Cat the content of docs/GUIDE.md to the user.
+If the file creates too much output, summarize the key sections: Quick Start, Agents, and Migration.
+If the user asks specifically about one topic, expand on that section.
+"""

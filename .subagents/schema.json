@@ -1,0 +1,333 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://antigravity.dev/schemas/subagents-manifest.json",
+  "title": "Subagents Manifest Schema v3.0",
+  "description": "Schema for .subagents/manifest.json — includes Opus 4.6 Agent Teams, Effort Controls, and Adaptive Thinking",
+  "type": "object",
+  "required": ["version", "project", "agents"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "examples": ["1.0", "2.0", "3.0"]
+    },
+    "project": {
+      "type": "string",
+      "description": "Project name",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "description": "Project description"
+    },
+    "vendors": {
+      "type": "object",
+      "description": "Vendor configuration",
+      "properties": {
+        "available": {
+          "type": "array",
+          "description": "List of available vendors",
+          "items": {
+            "type": "string",
+            "enum": ["gemini", "claude", "codex"]
+          },
+          "uniqueItems": true,
+          "default": ["gemini", "claude", "codex"]
+        },
+        "default": {
+          "type": "string",
+          "description": "Default vendor for agents",
+          "enum": ["gemini", "claude", "codex"],
+          "default": "gemini"
+        },
+        "codex_partial": {
+          "type": "boolean",
+          "description": "Flag indicating Codex runs in degraded mode",
+          "default": true
+        },
+        "codex_capabilities": {
+          "type": "object",
+          "description": "Codex vendor capabilities"
+        },
+        "claude_capabilities": {
+          "type": "object",
+          "description": "Claude vendor capabilities (Opus 4.6+)",
+          "properties": {
+            "model": {
+              "type": "string",
+              "description": "Claude model identifier"
+            },
+            "release_date": {
+              "type": "string",
+              "format": "date",
+              "description": "Model release date"
+            },
+            "context_window": {
+              "type": "string",
+              "description": "Maximum context window size"
+            },
+            "max_output_tokens": {
+              "type": "integer",
+              "description": "Maximum output tokens per response"
+            },
+            "effort_levels": {
+              "type": "array",
+              "description": "Available effort levels",
+              "items": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "max"]
+              }
+            },
+            "adaptive_thinking": {
+              "type": "boolean",
+              "description": "Whether adaptive thinking is supported"
+            },
+            "agent_teams": {
+              "type": "boolean",
+              "description": "Whether parallel agent teams are supported"
+            },
+            "compaction_api": {
+              "type": "boolean",
+              "description": "Whether context compaction is supported"
+            },
+            "streaming_required_for_large_output": {
+              "type": "boolean",
+              "description": "Whether streaming is required for large max_tokens values"
+            },
+            "commands": {
+              "type": "array",
+              "description": "Available Claude Code CLI commands",
+              "items": { "type": "string" }
+            },
+            "pricing": {
+              "type": "object",
+              "description": "Token pricing tiers"
+            }
+          }
+        }
+      }
+    },
+    "agent_teams": {
+      "type": "object",
+      "description": "Agent Teams configuration (Opus 4.6+)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether agent teams are enabled",
+          "default": false
+        },
+        "max_parallel_agents": {
+          "type": "integer",
+          "description": "Maximum number of agents running in parallel",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5
+        },
+        "supervisor_model": {
+          "type": "string",
+          "description": "Model used for the supervisor agent"
+        },
+        "coordination_mode": {
+          "type": "string",
+          "description": "How agents coordinate",
+          "enum": ["autonomous", "supervised", "sequential"],
+          "default": "autonomous"
+        },
+        "teams": {
+          "type": "object",
+          "description": "Predefined team configurations",
+          "additionalProperties": {
+            "$ref": "#/definitions/team"
+          }
+        }
+      }
+    },
+    "effort_mapping": {
+      "type": "object",
+      "description": "Maps the Hybrid Lazy Evaluation classifier levels to Claude effort levels",
+      "properties": {
+        "NIVEL_1_directo": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "max"]
+        },
+        "NIVEL_2_un_agente": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "max"]
+        },
+        "NIVEL_3_pipeline": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "max"]
+        },
+        "overrides": {
+          "type": "object",
+          "description": "Task-specific effort overrides",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "max"]
+          }
+        }
+      }
+    },
+    "agents": {
+      "type": "array",
+      "description": "List of configured agents",
+      "items": {
+        "$ref": "#/definitions/agent"
+      },
+      "minItems": 1
+    }
+  },
+  "definitions": {
+    "team": {
+      "type": "object",
+      "description": "A predefined agent team configuration",
+      "required": ["agents", "mode", "use_case"],
+      "properties": {
+        "agents": {
+          "type": "array",
+          "description": "Agent names in this team",
+          "items": { "type": "string" },
+          "minItems": 2
+        },
+        "mode": {
+          "type": "string",
+          "description": "Execution mode for the team",
+          "enum": ["parallel", "sequential"]
+        },
+        "effort": {
+          "type": "string",
+          "description": "Default effort level for the team",
+          "enum": ["low", "medium", "high", "max"],
+          "default": "high"
+        },
+        "use_case": {
+          "type": "string",
+          "description": "Description of when to use this team"
+        }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "required": ["name", "vendor", "scope", "triggers", "instructions"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique agent identifier",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "examples": ["code-analyst", "doc-writer"]
+        },
+        "vendor": {
+          "type": "string",
+          "description": "Primary vendor for this agent",
+          "enum": ["gemini", "claude", "codex"]
+        },
+        "supported_vendors": {
+          "type": "array",
+          "description": "All vendors that can run this agent",
+          "items": {
+            "type": "string",
+            "enum": ["gemini", "claude", "codex"]
+          },
+          "uniqueItems": true,
+          "default": ["gemini", "claude", "codex"]
+        },
+        "scope": {
+          "type": "string",
+          "description": "Agent scope",
+          "enum": ["project", "workspace", "global"],
+          "default": "project"
+        },
+        "priority": {
+          "type": "integer",
+          "description": "Agent priority (lower = higher priority)",
+          "minimum": 1,
+          "maximum": 99
+        },
+        "triggers": {
+          "type": "array",
+          "description": "Keywords that trigger this agent",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "instructions": {
+          "type": "string",
+          "description": "Agent instructions and constraints"
+        },
+        "codex_config": {
+          "type": "object",
+          "description": "Codex-specific configuration",
+          "properties": {
+            "effort": {
+              "type": "string",
+              "description": "Codex effort level",
+              "enum": ["xhigh", "high", "medium", "low"],
+              "default": "high"
+            },
+            "sequential_warning": {
+              "type": "boolean",
+              "description": "Show warning about sequential execution",
+              "default": true
+            },
+            "deep_research": {
+              "type": "boolean",
+              "description": "Enable deep research mode",
+              "default": false
+            },
+            "note": {
+              "type": "string",
+              "description": "Additional notes for Codex execution"
+            }
+          }
+        },
+        "claude_config": {
+          "type": "object",
+          "description": "Claude-specific configuration (Opus 4.6+)",
+          "properties": {
+            "model": {
+              "type": "string",
+              "description": "Claude model to use",
+              "enum": ["opus-4.6", "opus", "sonnet-4.5", "sonnet", "haiku"],
+              "default": "opus-4.6"
+            },
+            "effort": {
+              "type": "string",
+              "description": "Claude effort level (Opus 4.6+)",
+              "enum": ["low", "medium", "high", "max"],
+              "default": "high"
+            },
+            "adaptive_thinking": {
+              "type": "boolean",
+              "description": "Enable adaptive thinking mode (Opus 4.6+)",
+              "default": true
+            },
+            "allow_parallel": {
+              "type": "boolean",
+              "description": "Allow parallel subagent execution",
+              "default": true
+            }
+          }
+        },
+        "gemini_config": {
+          "type": "object",
+          "description": "Gemini-specific configuration",
+          "properties": {
+            "model": {
+              "type": "string",
+              "description": "Gemini model to use",
+              "enum": ["pro", "flash"],
+              "default": "pro"
+            },
+            "thinking_mode": {
+              "type": "boolean",
+              "description": "Enable extended thinking",
+              "default": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

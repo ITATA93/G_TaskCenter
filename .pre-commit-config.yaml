@@ -1,0 +1,45 @@
+# Pre-commit hooks for G_Plantilla
+# Install: pip install pre-commit && pre-commit install
+# Run all: pre-commit run --all-files
+
+repos:
+  # Standard hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.md$' # Markdown uses trailing spaces intentionally
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: detect-private-key
+
+  # Ruff (Python linting + formatting)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+
+  # Local hooks
+  - repo: local
+    hooks:
+      - id: agent-health-check
+        name: Agent Health Check
+        entry: python scripts/agent_health_check.py
+        language: python
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      - id: template-sync-check
+        name: Template Sync Drift Check
+        entry: python scripts/template_sync.py
+        language: python
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+        verbose: true

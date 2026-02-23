@@ -1,0 +1,24 @@
+[command]
+description = "Launch multiple sub-agents in parallel for independent tasks"
+
+[command.prompt]
+content = """
+The user wants to execute sub-agents in parallel: {{input}}
+
+## Process:
+1. Analyze the request and decompose into INDEPENDENT tasks (that do NOT modify the same files)
+2. For each task, identify the appropriate sub-agent (code-analyst, doc-writer, code-reviewer, test-writer, db-analyst, deployer)
+3. For EACH task, execute in shell:
+
+   gemini -p "You are the '{name}' agent. Your ONLY task: {description}. Write result to .gemini/agents/logs/{name}-$(date +%Y%m%d-%H%M%S).md" --yolo > .gemini/agents/logs/{name}-run.log 2>&1 &
+
+4. Launch ALL with & (background)
+5. Execute 'wait' to wait for completion
+6. Read logs and present consolidated summary
+
+## RULES:
+- Each sub-agent: DIFFERENT files (no overlap)
+- Always --yolo for auto-approval
+- Maximum 4 parallel
+- Save logs in .gemini/agents/logs/
+"""

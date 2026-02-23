@@ -1,0 +1,76 @@
+# Environment
+node_modules/
+__pycache__/
+*.pyc
+.env
+.env.local
+.env.*.local
+venv/
+.venv/
+.venv_temp/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Agent logs (don't version temporary logs)
+.gemini/agents/logs/
+.gemini/agents/locks/
+.gemini/brain/daily/
+
+# Builds
+dist/
+build/
+*.egg-info/
+.next/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Secrets
+*.pem
+*.key
+credentials/
+secrets/
+
+# Caches
+.mypy_cache/
+.ruff_cache/
+
+# Testing
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.nyc_output/
+
+# Logs
+*.log
+logs/
+
+# Knowledge Vault
+*.db
+*.sqlite
+data/knowledge_vault.db
+data/knowledge_repo/
+
+# Team context (temporary, generated)
+.subagents/_team_context.md
+
+# Agent config sync (encrypted archives — NEVER commit)
+data/secure/
+scripts/setup/agent_config_sync.py
+scripts/setup/_pack_list.txt
+scripts/setup/_unpack_temp/
+
+# Bulk external skills (pull separately)
+_resources/
+_global-profile/
+_template/workspace/_global-profile/

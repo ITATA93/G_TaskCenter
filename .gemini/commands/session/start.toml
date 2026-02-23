@@ -1,0 +1,20 @@
+[command]
+description = "Start a development session with full project context"
+
+[command.prompt]
+content = """
+Start a new development session:
+
+1. Read docs/DEVLOG.md and show the last entry
+2. Read docs/TODO.md and show prioritized pending tasks
+3. Execute `git log --oneline -10` to show recent commits
+4. Execute `git status` to show current state
+5. Read CHANGELOG.md and show the latest version
+6. Present an executive summary with:
+   - Last work completed
+   - Priority pending tasks
+   - Uncommitted changes
+   - Suggested next action
+
+User notes (if any): {{input}}
+"""

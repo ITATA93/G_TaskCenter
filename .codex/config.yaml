@@ -1,0 +1,129 @@
+# Codex CLI Configuration for Antigravity Workspace
+# OpenAI Codex CLI 2026 - Full featured with Task tool limitation
+
+version: "2.0"
+provider: "codex"
+
+# =============================================================================
+# MODE SETTINGS
+# =============================================================================
+# Codex 2026 is fully featured EXCEPT for Task tool (no parallel subagents)
+partial_mode: true # Only Task tool is missing
+sequential_only: true # No parallel subagent spawning
+warnings_enabled: true
+
+# =============================================================================
+# MODELS (Pro License)
+# =============================================================================
+models:
+  default: "gpt-5.3-codex"
+  pro_max: "gpt-5.3-codex" # Pro license - extended context/reasoning
+  available:
+    - "gpt-5.3-codex" # Feb 2026 - 25% faster, agentic workflows
+    - "o4-mini" # Fast reasoning model
+
+# =============================================================================
+# EFFORT LEVELS
+# Maps to CODEX_MODEL_REASONING_EFFORT environment variable
+# Codex doesn't support CLI flags for model selection - uses env var instead
+# =============================================================================
+effort_levels:
+  # For PRD analysis, architecture design, complex planning
+  planning: "xhigh"
+
+  # For feature implementation, code generation, testing
+  development: "high"
+
+  # For simple fixes, documentation, quick tasks
+  fast: "low"
+
+  # Default for unspecified tasks
+  default: "high"
+
+# =============================================================================
+# CLI INVOCATION
+# =============================================================================
+cli:
+  command: "codex"
+  autonomous_flag: "exec --dangerously-bypass-approvals-and-sandbox"
+  prompt_positional: true # Prompt comes after flags, not via -p flag
+
+  # Environment variable for effort (Codex uses env var, not CLI flag)
+  effort_env_var: "CODEX_MODEL_REASONING_EFFORT"
+
+# =============================================================================
+# CONTEXT LIMITS
+# =============================================================================
+limits:
+  context_window: 128000 # 128K tokens
+  max_output_tokens: 32000 # 32K tokens max output
+  max_retries: 3 # Retry attempts on failure
+
+# =============================================================================
+# CAPABILITIES (2026 UPDATE)
+# =============================================================================
+capabilities:
+  task_tool: false # NO Task tool - cannot spawn subagents (ONLY limitation)
+  parallel_execution: false # No parallel subagents (consequence of no Task tool)
+  mcp_integration: true # ✅ MCP server support (config in ~/.codex/config.toml)
+  skills_system: true # ✅ Agent Skills (January 2026 feature)
+  web_search: true # ✅ Integrated web search
+  deep_research: true # ✅ Pro feature - extended research mode
+  stream_json: true # ✅ Structured streaming output
+
+# =============================================================================
+# MCP CONFIGURATION
+# =============================================================================
+mcp:
+  enabled: true
+  config_path: "~/.codex/config.toml"
+  # Project-level MCP servers (same as Gemini/Claude for parity)
+  servers:
+    filesystem:
+      command: "npx"
+      args: ["-y", "@anthropic-ai/mcp-filesystem", "."]
+    github:
+      command: "npx"
+      args: ["-y", "@modelcontextprotocol/server-github"]
+      env:
+        GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_TOKEN}"
+    fetch:
+      command: "npx"
+      args: ["-y", "@modelcontextprotocol/server-fetch"]
+
+# =============================================================================
+# SKILLS SYSTEM
+# =============================================================================
+skills:
+  enabled: true
+  # Skills are loaded from prompt or via skill files
+  # Can define custom skills in ~/.codex/skills/
+
+# =============================================================================
+# AGENT DEFAULTS
+# =============================================================================
+agent_defaults:
+  output_format: "json" # Prefer JSON output for parsing
+  language: "es" # Spanish for user-facing text
+  code_language: "en" # English for code/comments
+
+# =============================================================================
+# LIMITATIONS (2026 - Only Task Tool missing)
+# =============================================================================
+limitations:
+  - "No Task tool - cannot spawn parallel subagents"
+  - "Sequential execution for multi-step tasks"
+  # The following are NOW AVAILABLE in Codex 2026:
+  # ✅ MCP server integration
+  # ✅ Skills system
+  # ✅ Web search
+  # ✅ Deep research (Pro)
+
+# =============================================================================
+# PRO LICENSE FEATURES
+# =============================================================================
+pro_features:
+  deep_research: true # Extended research with citations
+  codex_max_model: true # GPT-5.1-Codex-Max access
+  extended_context: true # Larger context windows
+  priority_queue: true # Faster response times

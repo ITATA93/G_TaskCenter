@@ -1,0 +1,21 @@
+[command]
+description = "Close development session with documentation and optional commit"
+
+[command.prompt]
+content = """
+Close the current development session:
+
+1. Execute `git diff --stat` to see what files changed
+2. Update docs/DEVLOG.md with today's entry:
+   - Date (ISO 8601)
+   - What was done
+   - Decisions made
+   - Suggested next steps
+3. Update CHANGELOG.md if there are new features or fixes
+4. Update docs/TODO.md: mark completed, add new if discovered
+5. Run tests: `pytest tests/ -v --tb=short` or `npm test` (if applicable)
+6. If tests pass, run `git add -A` and `git commit` with descriptive message
+7. Show final summary
+
+Additional notes from user: {{input}}
+"""

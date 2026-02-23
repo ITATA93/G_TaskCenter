@@ -1,0 +1,180 @@
+# /migrate - Migrate existing project to Antigravity agent system
+#
+# Usage: gemini /migrate
+#
+# This command creates a COPY of the current project with "AG_" prefix,
+# adds Antigravity configuration, and creates a private GitHub repository.
+# The original project is NOT modified.
+
+[command]
+name = "migrate"
+description = "Create AG_ copy of project with Antigravity configuration"
+category = "setup"
+
+[prompt]
+content = """
+# Project Migration to Antigravity
+
+You are creating an Antigravity-enabled COPY of the current project.
+The original project will NOT be modified.
+
+## IMPORTANT: This creates a COPY, not in-place migration
+- New directory: AG_{original_project_name}
+- New private GitHub repository: AG_{original_project_name}
+- Original project remains completely unchanged
+
+## Step 1: Get Project Info and Confirm
+
+First, identify:
+1. **Current Project Name**: Get from directory name
+2. **Project Type**: Check for package.json (Node), requirements.txt/pyproject.toml (Python), go.mod (Go), Cargo.toml (Rust), *.csproj (.NET)
+3. **Framework**: React, Next.js, Vue, Express, Django, FastAPI, Flask, etc.
+4. **Parent Directory**: Where AG_ copy will be created
+
+Tell the user:
+```
+Migration Summary:
+- Original: {project_name} (will NOT be modified)
+- Copy: AG_{project_name}
+- Location: {parent_directory}/AG_{project_name}
+- GitHub: Private repo "AG_{project_name}" will be created
+```
+
+Ask for confirmation before proceeding.
+
+## Step 2: Create AG_ Copy
+
+1. Create new directory: AG_{project_name} in parent directory
+2. Copy all files EXCEPT:
+   - .git/
+   - node_modules/
+   - venv/, .venv/
+   - __pycache__/
+   - dist/, build/
+   - .next/, .nuxt/
+   - target/ (Rust)
+   - bin/, obj/ (.NET)
+
+## Step 3: Create Antigravity Structure
+
+In the AG_ copy, create:
+```
+.gemini/
+.gemini/agents/
+.gemini/agents/logs/
+.gemini/rules/
+.gemini/skills/
+.gemini/workflows/
+.gemini/commands/
+.gemini/commands/session/
+.gemini/scripts/
+.gemini/brain/
+.claude/
+.claude/commands/
+.claude/agents/
+.agent/
+.agent/rules/
+.subagents/
+docs/ (if doesn't exist)
+docs/architecture/
+docs/api/
+docs/database/
+```
+
+## Step 4: Generate Configuration Files
+
+### .gemini/settings.json
+```json
+{
+  "profile": {
+    "name": "AG_{project_name}",
+    "version": "1.0.0",
+    "description": "Project migrated to Antigravity agent system",
+    "originalProject": "{project_name}"
+  },
+  "agents": {
+    "subagents": true,
+    "maxParallel": 4,
+    "defaultTimeout": 300000,
+    "autoDelegate": true
+  },
+  "experimental": {
+    "enableAgents": true,
+    "codebaseInvestigatorSettings": {
+      "enabled": true,
+      "maxTurns": 10,
+      "maxTimeMinutes": 5
+    },
+    "introspectionAgentSettings": {
+      "enabled": true
+    }
+  },
+  "theme": "dark",
+  "codeExecution": {
+    "enabled": true,
+    "languages": ["python", "javascript", "typescript", "bash"]
+  },
+  "memory": {
+    "persistent": true,
+    "brainPath": ".gemini/brain"
+  },
+  "defaults": {
+    "language": "es",
+    "codeLanguage": "en",
+    "documentationLanguage": "es"
+  }
+}
+```
+
+### .subagents/manifest.json
+Include detected project type, language, framework, and originalProject field.
+
+## Step 5: Generate GEMINI.md and CLAUDE.md
+
+Include in both files:
+- AG_ project name
+- Reference to original project
+- Note that this is a copy
+
+## Step 6: Initialize Git and Create GitHub Repo
+
+1. Initialize git in AG_ directory
+2. Create .gitignore with Antigravity exclusions
+3. Make initial commit
+4. Create PRIVATE GitHub repository: AG_{project_name}
+5. Push to GitHub
+
+Use: gh repo create AG_{project_name} --private --source=. --push
+
+## Step 7: Report
+
+Provide summary:
+```
+Migration Complete!
+
+Original: {project_name} (UNCHANGED)
+Copy: AG_{project_name}
+Location: {full_path_to_ag_copy}
+GitHub: https://github.com/{user}/AG_{project_name} (private)
+
+Next steps:
+1. cd {ag_copy_path}
+2. Review and customize GEMINI.md
+3. Test with: gemini 'Analyze this project'
+```
+
+## Important Rules
+
+1. **NEVER modify the original project**
+2. **Always create the copy in parent directory**
+3. **Always use AG_ prefix**
+4. **Always create PRIVATE GitHub repository**
+5. **Exclude build artifacts and dependencies from copy**
+
+Begin now. First show the migration summary and ask for confirmation.
+"""
+
+[metadata]
+author = "antigravity"
+version = "2.0.0"
+tags = ["setup", "migration", "configuration", "github"]

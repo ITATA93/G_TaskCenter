@@ -1,0 +1,10 @@
+mcp
+fastmcp
+notion-client
+google-api-python-client
+google-auth-oauthlib
+msal
+requests
+python-dotenv
+pydantic
+tenacity
