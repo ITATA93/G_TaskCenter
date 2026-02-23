@@ -1,0 +1,228 @@
+{
+  "name": "Gmail to Notion Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "name": "Schedule Every 30 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "query": "is:unread is:important after:{{$now.minus({days: 7}).toFormat('yyyy/MM/dd')}} -category:promotions -category:social",
+        "format": "resolved"
+      },
+      "name": "Gmail (Fetch Important Unread)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        450,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL",
+          "name": "Gmail Personal"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nreturn items.map(item => {\n  let title = item.json.subject || 'No Subject';\n  return {\n    json: {\n      ...item.json,\n      parsed_title: title,\n      cross_id: item.json.messageId\n    }\n  };\n});"
+      },
+      "name": "Transform Variables (Code)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "YOUR_DB_EMAILS_ID",
+          "mode": "id"
+        },
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "Source ID",
+              "condition": "equals",
+              "type": "rich_text",
+              "richTextValue": "={{ $json.cross_id }}"
+            }
+          ]
+        }
+      },
+      "name": "Check if Exists in Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        850,
+        300
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "YOUR_NOTION_CREDENTIAL",
+          "name": "Notion NOs"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ec01c775-690a-4da5-b9e3-241ab7e3a9dc",
+              "leftValue": "={{ $json.results.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "name": "If Not Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "value": "YOUR_DB_EMAILS_ID",
+          "mode": "id"
+        },
+        "title": "={{ $('Transform Variables (Code)').item.json.parsed_title }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Source ID",
+              "type": "rich_text",
+              "richTextValue": "={{ $('Transform Variables (Code)').item.json.cross_id }}"
+            },
+            {
+              "key": "Snippet",
+              "type": "rich_text",
+              "richTextValue": "={{ $('Transform Variables (Code)').item.json.snippet }}"
+            },
+            {
+              "key": "Status",
+              "type": "select",
+              "selectValue": "Unread"
+            }
+          ]
+        }
+      },
+      "name": "Create in Notion",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        1250,
+        280
+      ],
+      "credentials": {
+        "notionApi": {
+          "id": "YOUR_NOTION_CREDENTIAL",
+          "name": "Notion NOs"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Every 30 min": {
+      "main": [
+        [
+          {
+            "node": "Gmail (Fetch Important Unread)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail (Fetch Important Unread)": {
+      "main": [
+        [
+          {
+            "node": "Transform Variables (Code)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Variables (Code)": {
+      "main": [
+        [
+          {
+            "node": "Check if Exists in Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Exists in Notion": {
+      "main": [
+        [
+          {
+            "node": "If Not Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Not Exists": {
+      "main": [
+        [
+          {
+            "node": "Create in Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
