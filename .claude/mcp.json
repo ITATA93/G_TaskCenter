@@ -2,18 +2,64 @@
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@anthropic-ai/mcp-filesystem", "."]
+      "args": [
+        "-y",
+        "@anthropic-ai/mcp-filesystem",
+        "."
+      ]
     },
     "github": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
     },
     "fetch": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-fetch"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ]
+    },
+    "gen-memory": {
+      "command": "python",
+      "args": [
+        "c:/_Gen_OS/GEN_OS-master/infrastructure/mcp-servers/mcp_memory/server.py"
+      ],
+      "env": {
+        "DATABASE_URL": "postgresql://admin:Imedicine2025!@10.10.10.101:5432/antigravity"
+      }
+    },
+    "gen-tasks": {
+      "command": "python",
+      "args": [
+        "c:/_Gen_OS/GEN_OS-master/infrastructure/mcp-servers/mcp_tasks/server.py"
+      ],
+      "env": {
+        "DATABASE_URL": "postgresql://admin:Imedicine2025!@10.10.10.101:5432/antigravity"
+      }
+    },
+    "gen-workflows": {
+      "command": "python",
+      "args": [
+        "c:/_Gen_OS/GEN_OS-master/infrastructure/mcp-servers/mcp_workflows/server.py"
+      ],
+      "env": {
+        "DATABASE_URL": "postgresql://admin:Imedicine2025!@10.10.10.101:5432/antigravity"
+      }
+    },
+    "gen-prompts": {
+      "command": "python",
+      "args": [
+        "c:/_Gen_OS/GEN_OS-master/infrastructure/mcp-servers/mcp_prompts/server.py"
+      ],
+      "env": {
+        "DATABASE_URL": "postgresql://admin:Imedicine2025!@10.10.10.101:5432/antigravity"
+      }
     }
   }
 }
