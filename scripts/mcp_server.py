@@ -1,4 +1,12 @@
-"""mcp_server.py — MCP Server for G_TaskCenter."""
+"""mcp_server.py — LEGACY/ALTERNATIVE MCP Server for G_TaskCenter.
+
+NOTE: This is a convenience wrapper with a reduced tool surface (4 read-only tools).
+The CANONICAL MCP server is src/server.py, which exposes the full tool set
+(10 tools including write operations and n8n workflow automation) with Pydantic
+model serialization. Prefer src/server.py for production and MCP registration.
+
+This file is retained for backward compatibility and lightweight read-only usage.
+"""
 
 import logging
 from typing import List, Optional
