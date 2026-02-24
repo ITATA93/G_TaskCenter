@@ -1,3 +1,8 @@
+---
+depends_on: []
+impacts: [CHANGELOG.md]
+---
+
 # CHANGELOG - G_TaskCenter
 
 ## [Unreleased]
