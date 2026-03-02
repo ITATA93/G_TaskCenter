@@ -32,7 +32,9 @@ class TestTaskSource:
         assert "notion" in sources
         assert "gmail" in sources
         assert "outlook" in sources
-        assert len(sources) == 3
+        assert "slack" in sources
+        assert "jira" in sources
+        assert len(sources) == 5
 
 
 class TestTaskPriority:

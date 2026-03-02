@@ -8,3 +8,7 @@ requests
 python-dotenv
 pydantic
 tenacity
+# Slack integration (optional — only needed if using Slack source)
+slack_sdk
+# Testing
+pytest

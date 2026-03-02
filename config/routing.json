@@ -1,0 +1,124 @@
+{
+  "$schema": "https://gen-os.local/schemas/routing-v1.json",
+  "version": "1.0.0",
+  "description": "GEN_OS pre-classifier routing rules for G_TaskCenter. Routes task-related queries from the Master Orchestrator to the g-taskcenter MCP server.",
+
+  "target": {
+    "project": "G_TaskCenter",
+    "domain": "03_PERSONAL",
+    "mcp_server": "g-taskcenter",
+    "entry_point": "src/server.py",
+    "transport": "stdio"
+  },
+
+  "classifier": {
+    "name": "task-router",
+    "priority": 100,
+    "enabled": true,
+
+    "intent_patterns": [
+      {
+        "id": "task-list",
+        "description": "User wants to see their tasks or to-do items",
+        "keywords": ["tasks", "to-do", "todo", "to do", "pending", "backlog", "my tasks"],
+        "patterns": [
+          "list.*tasks",
+          "show.*tasks",
+          "what.*pending",
+          "my.*to.?do",
+          "what do I (have|need) to do",
+          "tareas pendientes",
+          "mis tareas"
+        ],
+        "route_to_tool": "list_unified_tasks"
+      },
+      {
+        "id": "task-create",
+        "description": "User wants to create a new task",
+        "keywords": ["create task", "new task", "add task", "remind me"],
+        "patterns": [
+          "create.*task",
+          "add.*task",
+          "new.*task",
+          "remind me to",
+          "agregar.*tarea",
+          "crear.*tarea"
+        ],
+        "route_to_tool": "create_notion_task"
+      },
+      {
+        "id": "task-complete",
+        "description": "User wants to mark a task as done",
+        "keywords": ["complete task", "done", "finish task", "mark done", "close task"],
+        "patterns": [
+          "mark.*done",
+          "complete.*task",
+          "finish.*task",
+          "close.*task",
+          "completar.*tarea",
+          "marcar.*hecho"
+        ],
+        "route_to_tool": "complete_task_in_outlook"
+      },
+      {
+        "id": "task-source-query",
+        "description": "User wants tasks from a specific source",
+        "keywords": ["gmail tasks", "outlook tasks", "notion tasks", "slack tasks", "jira tasks"],
+        "patterns": [
+          "(gmail|outlook|notion|slack|jira).*tasks",
+          "tasks.*(gmail|outlook|notion|slack|jira)",
+          "tareas.*(gmail|outlook|notion|slack|jira)"
+        ],
+        "route_to_tool": "get_source_tasks"
+      },
+      {
+        "id": "task-sync",
+        "description": "User wants to synchronize tasks across platforms",
+        "keywords": ["sync tasks", "synchronize", "update tasks", "pull tasks"],
+        "patterns": [
+          "sync.*tasks",
+          "synchronize",
+          "pull.*tasks",
+          "sincronizar.*tareas"
+        ],
+        "route_to_tool": "list_unified_tasks"
+      },
+      {
+        "id": "email-archive",
+        "description": "User wants to archive a task-related email",
+        "keywords": ["archive email", "dismiss email", "clear email"],
+        "patterns": [
+          "archive.*email",
+          "dismiss.*email",
+          "archivar.*correo"
+        ],
+        "route_to_tool": "archive_gmail"
+      },
+      {
+        "id": "workflow-automation",
+        "description": "User wants to manage n8n workflows for task automation",
+        "keywords": ["workflow", "n8n", "automation", "automate tasks"],
+        "patterns": [
+          "list.*workflow",
+          "n8n.*workflow",
+          "automat.*task",
+          "flujos.*trabajo"
+        ],
+        "route_to_tool": "list_n8n_workflows"
+      }
+    ],
+
+    "fallback": {
+      "description": "If no pattern matches but the query is task-adjacent, route to list_unified_tasks as a safe default.",
+      "confidence_threshold": 0.6,
+      "default_tool": "list_unified_tasks"
+    }
+  },
+
+  "context_signals": [
+    "The user mentions deadlines, due dates, or time-sensitive work",
+    "The user references email subjects or message threads as actionable items",
+    "The user talks about their productivity workflow or task management",
+    "The user mentions specific platforms: Gmail, Outlook, Notion, Slack, Jira"
+  ]
+}

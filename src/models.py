@@ -10,6 +10,8 @@ class TaskSource(str, Enum):
     NOTION = "notion"
     GMAIL = "gmail"
     OUTLOOK = "outlook"
+    SLACK = "slack"
+    JIRA = "jira"
 
 
 class TaskPriority(str, Enum):
